@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1192283082/OGRE_LOC/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1192283082/OGRE_LOC/operation=append
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1192283082/OGRE_LOC/value=/usr/include/OGRE
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1192283082/append=true
+environment/project/cdt.managedbuild.config.gnu.cross.exe.debug.1192283082/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.cross.exe.release.251559353/OGRE_LOC/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.cross.exe.release.251559353/OGRE_LOC/operation=append
+environment/project/cdt.managedbuild.config.gnu.cross.exe.release.251559353/OGRE_LOC/value=/usr/include/OGRE
+environment/project/cdt.managedbuild.config.gnu.cross.exe.release.251559353/append=true
+environment/project/cdt.managedbuild.config.gnu.cross.exe.release.251559353/appendContributed=true
