@@ -15,7 +15,12 @@ MessageBus::MessageBus() {
 }
 
 MessageBus::~MessageBus() {
-	// TODO Auto-generated destructor stub
+	for (auto p : this->typedMsgbusMap) {
+		auto pTypedMsgbus = p.second;
+		if (pTypedMsgbus) {
+			delete pTypedMsgbus;
+		}
+	}
 }
 
 } /* namespace WheelsOfWar */
