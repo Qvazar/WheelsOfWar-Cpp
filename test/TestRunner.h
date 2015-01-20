@@ -8,13 +8,20 @@
 #ifndef TEST_TESTRUNNER_H_
 #define TEST_TESTRUNNER_H_
 
+#ifdef DEBUG
+#include "MessageBusTest.h"
+
 namespace WheelsOfWarTest {
 
 class TestRunner {
+private:
+	TestRunner() {}
 public:
-	void runTests() const;
+	static void runTests() const;
 };
 
 }
+
+#endif
 
 #endif /* TEST_TESTRUNNER_H_ */

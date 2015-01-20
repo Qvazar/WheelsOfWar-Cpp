@@ -15,12 +15,7 @@ MessageBus::MessageBus() {
 }
 
 MessageBus::~MessageBus() {
-	for (auto p : this->typedMsgbusMap) {
-		auto pTypedMsgbus = p.second;
-		if (pTypedMsgbus) {
-			delete pTypedMsgbus;
-		}
-	}
+
 }
 
 } /* namespace WheelsOfWar */

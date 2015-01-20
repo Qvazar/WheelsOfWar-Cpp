@@ -38,6 +38,8 @@ void TutorialApplication::createScene(void)
 #include "windows.h"
 #endif
 
+#ifdef USE_OGRE_MAIN
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,6 +69,8 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 //---------------------------------------------------------------------------

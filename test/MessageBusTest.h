@@ -8,6 +8,8 @@
 #ifndef TEST_MESSAGEBUSTEST_H_
 #define TEST_MESSAGEBUSTEST_H_
 
+#ifdef DEBUG
+
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include "../src/MessageBus.h"
@@ -17,21 +19,48 @@ namespace WheelsOfWarTest {
 class MessageBusTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( MessageBusTest );
 	CPPUNIT_TEST( testListen );
+	CPPUNIT_TEST( testUnlisten );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void testListen() const {
-		bool ret = false;
+	void setUp() {
 
+	}
+
+	void tearDown() {
+
+	}
+
+	void testListen() {
 		WheelsOfWar::MessageBus msgbus;
+
 		msgbus.listen<TestMessage>([&](auto arg) {
-			ret = arg.isOk;
+
 		});
 
-		msgbus.send(testMsg);
-
-		CPPUNIT_ASSERT(ret);
+		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 1);
 	}
+
+	void testUnlisten() {
+		WheelsOfWar::MessageBus msgbus;
+		auto listener = [](const TestMessage& msg){
+
+		};
+
+		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
+
+		msgbus.unlisten<TestMessage>(listener);
+
+		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
+
+		msgbus.listen<TestMessage>(listener);
+
+		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 1);
+
+		msgbus.unlisten<TestMessage>(listener);
+
+		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
+}
 
 private:
 
@@ -44,5 +73,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION( MessageBusTest );
 
 }
+
+#endif /* DEBUG */
 
 #endif /* TEST_MESSAGEBUSTEST_H_ */
