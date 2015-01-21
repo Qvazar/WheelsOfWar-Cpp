@@ -12,6 +12,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <typeindex>
 #include <typeinfo>
 
 using namespace std;
@@ -30,19 +31,19 @@ public:
 	}
 
 	template<typename T>
-	void listen(const function<void(const T&)>& listener) {
+	void on(const function<void(const T&)>& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus == nullptr) {
 			pTypedMsgbus = &createTypedMessageBus<T>();
 		}
-		pTypedMsgbus->listen(listener);
+		pTypedMsgbus->on(listener);
 	}
 
 	template<typename T>
-	void unlisten(const function<void(const T&)>& listener) {
+	void off(const function<void(const T&)>& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus != nullptr) {
-			pTypedMsgbus->unlisten(listener);
+			pTypedMsgbus->off(listener);
 		}
 	}
 
@@ -73,11 +74,11 @@ private:
 			}
 		}
 
-		void listen(const function<void(const T&)>& listener) {
+		void on(const function<void(const T&)>& listener) {
 			this->listeners.push_front(listener);
 		}
 
-		void unlisten(const function<void(const T&)>& listener) {
+		void off(const function<void(const T&)>& listener) {
 			this->listeners.remove(listener);
 		}
 
@@ -110,7 +111,7 @@ private:
 		return *static_cast<TypedMessageBus<T>*>(ptr->get());
 	}
 
-	map<type_info, unique_ptr<TypedMessageBusBase>> typedMsgbusMap;
+	map<type_index, unique_ptr<TypedMessageBusBase>> typedMsgbusMap;
 };
 
 } /* namespace WheelsOfWar */

@@ -18,8 +18,8 @@ namespace WheelsOfWarTest {
 
 class MessageBusTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( MessageBusTest );
-	CPPUNIT_TEST( testListen );
-	CPPUNIT_TEST( testUnlisten );
+	CPPUNIT_TEST( testOn );
+	CPPUNIT_TEST( testOff );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -31,33 +31,33 @@ public:
 
 	}
 
-	void testListen() {
+	void testOn() {
 		WheelsOfWar::MessageBus msgbus;
 
-		msgbus.listen<TestMessage>([&](auto arg) {
+		msgbus.on<TestMessage>([&](auto arg) {
 
 		});
 
 		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 1);
 	}
 
-	void testUnlisten() {
+	void testOff() {
 		WheelsOfWar::MessageBus msgbus;
-		auto listener = [](const TestMessage& msg){
+		std::function<void(const TestMessage&)> listener = [](const TestMessage& msg){
 
 		};
 
 		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
 
-		msgbus.unlisten<TestMessage>(listener);
+		msgbus.off<TestMessage>(listener);
 
 		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
 
-		msgbus.listen<TestMessage>(listener);
+		msgbus.on<TestMessage>(listener);
 
 		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 1);
 
-		msgbus.unlisten<TestMessage>(listener);
+		msgbus.off<TestMessage>(listener);
 
 		CPPUNIT_ASSERT(msgbus.listenerCount<TestMessage>() == 0);
 }

@@ -9,17 +9,17 @@
 #define TEST_TESTRUNNER_H_
 
 #ifdef DEBUG
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/ui/text/TestRunner.h>
 #include "MessageBusTest.h"
 
 namespace WheelsOfWarTest {
-
-class TestRunner {
-private:
-	TestRunner() {}
-public:
-	static void runTests() const;
-};
-
+	static void runTests() {
+		CppUnit::TextUi::TestRunner runner;
+		CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
+		runner.addTest( registry.makeTest() );
+		runner.run();
+	}
 }
 
 #endif
