@@ -21,6 +21,9 @@ namespace WheelsOfWar {
 
 class MessageBus {
 public:
+	template<typename T>
+	using Listener = function<void(const T&)>;
+
 	MessageBus();
 	virtual ~MessageBus();
 
@@ -30,8 +33,8 @@ public:
 		msgbus->send(message);
 	}
 
-	template<typename T>
-	void on(const function<void(const T&)>& listener) {
+	template<typename T, typename F>
+	void on(const F& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus == nullptr) {
 			pTypedMsgbus = &createTypedMessageBus<T>();
@@ -39,8 +42,8 @@ public:
 		pTypedMsgbus->on(listener);
 	}
 
-	template<typename T>
-	void off(const function<void(const T&)>& listener) {
+	template<typename T, typename F>
+	void off(const F& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus != nullptr) {
 			pTypedMsgbus->off(listener);
@@ -69,21 +72,28 @@ private:
 		friend class MessageBus;
 	public:
 		void send(const T& msg) {
-			for (auto l : this->listeners) {
-				l(msg);
+			for (auto pl : this->listeners) {
+				(*pl)(msg);
 			}
 		}
 
-		void on(const function<void(const T&)>& listener) {
-			this->listeners.push_front(listener);
+		template<typename F>
+		void on(const F& listener) {
+			//auto pl = new Listener<T>(listener);
+			this->listeners.emplace_front(listener);
 		}
 
-		void off(const function<void(const T&)>& listener) {
-			this->listeners.remove(listener);
+		template<typename F>
+		void off(const F& listener) {
+			this->listeners.remove_if([=](const Listener<T>& fn) {
+				auto pt = fn.template target<F>();
+				return pt == &listener;
+			});
 		}
 
 	private:
-		forward_list<function<void(const T&)> > listeners;
+		forward_list<Listener<T>> listeners;
+		//forward_list<const Listener<T>* > listeners;
 	};
 
 	template<typename T>

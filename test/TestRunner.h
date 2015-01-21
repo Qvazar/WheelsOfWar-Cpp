@@ -14,7 +14,7 @@
 #include "MessageBusTest.h"
 
 namespace WheelsOfWarTest {
-	static void runTests() {
+	void runTests() {
 		CppUnit::TextUi::TestRunner runner;
 		CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
 		runner.addTest( registry.makeTest() );

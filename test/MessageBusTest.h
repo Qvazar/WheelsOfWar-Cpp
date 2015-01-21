@@ -43,7 +43,7 @@ public:
 
 	void testOff() {
 		WheelsOfWar::MessageBus msgbus;
-		std::function<void(const TestMessage&)> listener = [](const TestMessage& msg){
+		WheelsOfWar::MessageBus::Listener<TestMessage> listener = [](const TestMessage& msg){
 
 		};
 
