@@ -8,7 +8,7 @@
 #ifndef SRC_MESSAGEBUS_H_
 #define SRC_MESSAGEBUS_H_
 
-#include <forward_list>
+#include <unordered_set>
 #include <functional>
 #include <map>
 #include <memory>
@@ -29,12 +29,14 @@ public:
 
 	template<typename T>
 	void send(const T& message) const {
-		auto msgbus = getTypedMessageBus<T>();
-		msgbus->send(message);
+		auto pMsgbus = getTypedMessageBus<T>();
+		if (pMsgbus != nullptr) {
+			pMsgbus->send(message);
+		}
 	}
 
-	template<typename T, typename F>
-	void on(const F& listener) {
+	template<typename T>
+	void on(const Listener<T>& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus == nullptr) {
 			pTypedMsgbus = &createTypedMessageBus<T>();
@@ -42,8 +44,8 @@ public:
 		pTypedMsgbus->on(listener);
 	}
 
-	template<typename T, typename F>
-	void off(const F& listener) {
+	template<typename T>
+	void off(const Listener<T>& listener) {
 		auto pTypedMsgbus = getTypedMessageBus<T>();
 		if (pTypedMsgbus != nullptr) {
 			pTypedMsgbus->off(listener);
@@ -70,29 +72,25 @@ private:
 	template<typename T>
 	class TypedMessageBus : public TypedMessageBusBase {
 		friend class MessageBus;
+
 	public:
 		void send(const T& msg) {
-			for (auto pl : this->listeners) {
+			for (auto pl : listeners) {
 				(*pl)(msg);
 			}
 		}
 
-		template<typename F>
-		void on(const F& listener) {
+		void on(const Listener<T>& listener) {
 			//auto pl = new Listener<T>(listener);
-			this->listeners.emplace_front(listener);
+			this->listeners.insert(&listener);
 		}
 
-		template<typename F>
-		void off(const F& listener) {
-			this->listeners.remove_if([=](const Listener<T>& fn) {
-				auto pt = fn.template target<F>();
-				return pt == &listener;
-			});
+		void off(const Listener<T>& listener) {
+			this->listeners.erase(&listener);
 		}
 
 	private:
-		forward_list<Listener<T>> listeners;
+		unordered_set<const Listener<T>*> listeners;
 		//forward_list<const Listener<T>* > listeners;
 	};
 

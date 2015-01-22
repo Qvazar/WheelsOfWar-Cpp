@@ -10,24 +10,45 @@
 
 #include <initializer_list>
 #include <forward_list>
+#include <string>
 #include "Component.h"
-#include "UpdateEvent.h"
+#include "Heartbeat.h"
+#include "MessageBus.h"
 
 namespace WheelsOfWar {
 
+template<typename... ComponentTypes>
 class Entity {
 public:
-	Entity(const std::initializer_list<Component*>&);
+	Entity(std::initializer_list<Entity> children);
 	virtual ~Entity();
 
-	virtual void update(const UpdateEvent&);
-	void addChildren(const std::initializer_list<Entity>&);
-	void removeChildren(const std::initializer_list<Entity>&);
+	void update(const Heartbeat&);
+
+	void tick(const Heartbeat&);
+
+	void addChild(const std::string& id, const Entity&);
+
+	void removeChild(const std::string& id);
+
+	void removeChild(const Entity&);
+
+	template<typename EventType>
+	void on(const MessageBus::Listener<EventType>&);
+
+	template<typename EventType>
+	void off(const MessageBus::Listener<EventType>&);
+
+	template<typename EventType>
+	void send(const EventType&);
 
 private:
-	const std::forward_list<Component*> components;
+	const std::forward_list<unique_ptr<Component>> components;
+	const MessageBus msgbus;
 };
 
 } /* namespace WheelsOfWar */
+
+#include "Entity.tcc"
 
 #endif /* SRC_ENTITY_H_ */

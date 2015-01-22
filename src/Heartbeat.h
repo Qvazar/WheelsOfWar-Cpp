@@ -5,16 +5,13 @@
  *      Author: sj
  */
 
-#ifndef UPDATEEVENT_H_
-#define UPDATEEVENT_H_
+#pragma once
 
 namespace WheelsOfWar {
 
-struct UpdateEvent {
+struct Heartbeat {
 	unsigned long tick;
 	float deltaTime;
 };
 
 } /* namespace WheelsOfWar */
-
-#endif /* UPDATEEVENT_H_ */
