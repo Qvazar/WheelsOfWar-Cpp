@@ -20,20 +20,51 @@ namespace WheelsOfWarEngine {
 		template<typename E>
 		void send(const E& event) noexcept {
 			auto eType = type_index(typeid(event));
+			auto it = this->typedBuses.find(eType);
 
+			if (it != this->typedBuses.end()) {
+				auto bus = static_cast<TypedEventBus<E>*>(*(it->second));
+				bus.send(event):
+			}
 		}
 
 		template<typename E, typename H>
-		void on(const H* handler);
+		void on(const H* handler) noexcept {
+			auto eType = type_index(typeid(event));
+
+			auto busPtr = this->typedBuses[eType];
+
+			if (!busPtr) {
+				busPtr.reset(new TypedEventBus<E>);
+			}
+
+			static_cast<TypedEventBus<E>*>(busPtr.get())->on(handler);
+		}
 
 		template<typename E, typename H>
-		void off(const H* handler);
+		void off(const H* handler) noexcept {
+			auto eType = type_index(typeid(event));
+			auto it = this->typedBuses.find(eType);
+
+			if (it == this->typedBuses.end()) {
+				return;
+			}
+
+			auto busPtr = it->second;
+
+			static_cast<TypedEventBus<E>*>(busPtr.get())->off(handler);
+
+			if (busPtr->handlers.empty()) {
+				this->typedBuses.erase(it);
+			}
+		}			
 
 	private:
 		class TypedEventBusBase {};
 
 		template<typename E>
 		class TypedEventBus : TypedEventBusBase {
+			friend class EventBus;
 		public:
 			TypedEventBus() noexcept;
 			TypedEventBus(const TypedEventBus&) = delete;
