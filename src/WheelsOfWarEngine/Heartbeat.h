@@ -1,13 +1,6 @@
-/*
- * UpdateEvent.h
- *
- *  Created on: Jan 16, 2015
- *      Author: sj
- */
-
 #pragma once
 
-namespace WheelsOfWar {
+namespace WheelsOfWarEngine {
 
 struct Heartbeat {
 	unsigned long tick;
