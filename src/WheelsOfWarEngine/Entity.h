@@ -1,15 +1,16 @@
 #pragma once
 
+#include <algorithm>
 #include <forward_list>
 #include <initializer_list>
 #include <map>
 #include <string>
 #include "Component.h"
+#include "EventBus.h"
 #include "Heartbeat.h"
 
 namespace WheelsOfWarEngine {
 
-template<typename... ComponentTypes>
 class Entity {
 public:
 	Entity() = default;
@@ -26,39 +27,88 @@ public:
 
 	template<typename P>
 	class PartMap {
+		friend class Entity;
 		friend class ComponentMap;
 	private:
-		PartMap() = default;
-		PartMap(const PartMap&) = delete;
-		PartMap(PartMap&&) = delete;
+		PartMap(const Entity* entity)
+		: entity(entity);
+
+		PartMap(const PartMap& other) noexcept {
+			*this = other;
+		}
+
+		PartMap(PartMap&&) = default;
+
+		PartMap& operator=(const PartMap&) noexcept {
+			this->parts.clear();
+
+			for (const auto& p : other.parts) {
+				this->parts[p->first] = p->second->clone();
+			}
+
+			return *this;
+		}
+
+		PartMap& operator=(PartMap&&) = default;
 	public:
 		virtual ~PartMap() = default;
-		PartMap& operator=(const PartMap&) = delete;
-		PartMap& operator=(PartMap&&) = delete;
 
-		void add(const std::string&, P*) noexcept;
-		void add(const std::initializer_list<std::pair<std::string, P*>>&) noexcept;
-		void remove(const std::string&) noexcept;
-		void remove(P*) noexcept;
-		P& get(const std::string&) const;
+		void set(const std::string& id, P* partPtr) noexcept {
+			this->parts[id].reset(partPtr);
+			if (partPtr) {
+				partPtr->parent = this->entity;
+			}
+		}
+
+		void set(const std::initializer_list<std::pair<std::string, P*>>& parts) noexcept {
+			for (const auto& p : parts) {
+				this->set(p->first, p->second);
+			}
+		}
+
+		void remove(const std::string& id) noexcept {
+			this->parts.erase(id);
+		}
+
+		void remove(P* partPtr) noexcept {
+			std::remove_if(this->parts.begin(), this->parts.end(), [partPtr](const auto& p) {
+				return p->second.get() == partPtr;
+			});
+		}
+
+		P& get(const std::string& id) const {
+			return this->parts.at(id);
+		}
 
 	private:
 		std::map<std::string, std::unique_ptr<P>> parts;
+		Entity* entity;
 	};
 
 	typedef PartMap<Entity> EntityMap;
+
 	class ComponentMap : PartMap<Component> {
 	public:
 		template<typename T>
-		std::forward_list<T*> find<T>() const noexcept;
+		std::forward_list<T*> find<T>() const noexcept {
+			std::forward_list<T*> matches;
+
+			for (const auto& p : this->parts) {
+				T* tPtr = dynamic_cast<T*>(p->second.get());
+				if (tPtr) {
+					matches.push_front(tPtr);
+				}
+			}
+
+			return matches;
+		}
 	};
 
 	EntityMap entities;
 	ComponentMap components;
+	EventBus events;
 private:
 	Entity* parent;
 };
 
 } /* namespace WheelsOfWar */
-
-#include "Entity.tcc"
