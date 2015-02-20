@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <forward_list>
 #include <map>
+#include <memory>
 #include <typeinfo>
 
 namespace WheelsOfWarEngine {
@@ -85,7 +86,7 @@ namespace WheelsOfWarEngine {
 		};
 
 		template<typename E>
-		class TypedEventBus : TypedEventBusBase {
+		class TypedEventBus : public TypedEventBusBase {
 			friend class EventBus;
 		public:
 			TypedEventBus() = default;
@@ -147,7 +148,7 @@ namespace WheelsOfWarEngine {
 			};
 
 			template<typename H>
-			struct Handler : HandlerBase {
+			struct Handler : public HandlerBase {
 				H* handlerPtr;
 
 				virtual void operator()(const E& e) const override {

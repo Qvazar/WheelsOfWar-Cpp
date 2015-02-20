@@ -4,6 +4,7 @@
 #include <forward_list>
 #include <initializer_list>
 #include <map>
+#include <memory>
 #include <string>
 #include "Component.h"
 #include "EventBus.h"
@@ -27,10 +28,9 @@ public:
 
 	template<typename P>
 	class PartMap {
-		friend class Entity;
-		friend class ComponentMap;
-	private:
-		PartMap(const Entity* entity)
+		typedef std::map<std::string, std::unique_ptr<P>> _partMapType;
+	public:
+		PartMap(const Entity* entity = nullptr)
 		: entity(entity);
 
 		PartMap(const PartMap& other) noexcept {
@@ -50,7 +50,7 @@ public:
 		}
 
 		PartMap& operator=(PartMap&&) = default;
-	public:
+
 		virtual ~PartMap() = default;
 
 		void set(const std::string& id, P* partPtr) noexcept {
@@ -80,29 +80,37 @@ public:
 			return this->parts.at(id);
 		}
 
-	private:
-		std::map<std::string, std::unique_ptr<P>> parts;
+		_partMapType::iterator begin() {
+			return this->parts.begin();
+		}
+
+		_partMapType::const_iterator begin() const {
+			return this->parts.begin();
+		}
+
+		_partMapType::const_iterator cbegin() const {
+			return this->parts.cbegin();
+		}
+
+		_partMapType::iterator end() {
+			return this->parts.end();
+		}
+
+		_partMapType::const_iterator end() const {
+			return this->parts.end();
+		}
+
+		_partMapType::const_iterator cend() const {
+			return this->parts.cend();
+		}
+
+	protected:
+		_partMapType parts;
 		Entity* entity;
 	};
 
 	typedef PartMap<Entity> EntityMap;
-
-	class ComponentMap : PartMap<Component> {
-	public:
-		template<typename T>
-		std::forward_list<T*> find<T>() const noexcept {
-			std::forward_list<T*> matches;
-
-			for (const auto& p : this->parts) {
-				T* tPtr = dynamic_cast<T*>(p->second.get());
-				if (tPtr) {
-					matches.push_front(tPtr);
-				}
-			}
-
-			return matches;
-		}
-	};
+	typedef PartMap<Component> ComponentMap;
 
 	EntityMap entities;
 	ComponentMap components;
