@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <forward_list>
 #include <initializer_list>
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include "Component.h"
 #include "EventBus.h"
 #include "Heartbeat.h"
@@ -14,7 +14,7 @@ namespace WheelsOfWarEngine {
 
 class Entity {
 public:
-	Entity() = default;
+	Entity() : entities(this), components(this) {};
 	Entity(const Entity&) = default;
 	Entity(Entity&&) = default;
 	virtual ~Entity() = default;
@@ -26,9 +26,19 @@ public:
 	void applyUpdate() noexcept;
 	void tick(const Heartbeat&) noexcept;
 
+	Scene* getScene() const {
+		Entity* ep = this;
+		while (!ep->scene && ep->parent) {
+			ep = ep->parent;
+		}
+
+		return ep->scene;
+	}
+
 	template<typename P>
 	class PartMap {
-		typedef std::map<std::string, std::unique_ptr<P>> _partMapType;
+		typedef std::unordered_map<std::string, std::unique_ptr<P>> _partMapType;
+		
 	public:
 		PartMap(const Entity* entity = nullptr)
 		: entity(entity);
@@ -55,9 +65,7 @@ public:
 
 		void set(const std::string& id, P* partPtr) noexcept {
 			this->parts[id].reset(partPtr);
-			if (partPtr) {
-				partPtr->parent = this->entity;
-			}
+			this->onSet(id, partPtr);
 		}
 
 		void set(const std::initializer_list<std::pair<std::string, P*>>& parts) noexcept {
@@ -67,17 +75,36 @@ public:
 		}
 
 		void remove(const std::string& id) noexcept {
-			this->parts.erase(id);
+			this->remove(this->parts.find(id));
 		}
 
 		void remove(P* partPtr) noexcept {
-			std::remove_if(this->parts.begin(), this->parts.end(), [partPtr](const auto& p) {
-				return p->second.get() == partPtr;
-			});
+			auto it = this->parts.begin();
+
+			while ((it = std::find_if(
+					it,
+					this->parts.end(),
+					[partPtr](const auto& p) {
+						return p->second.get() == partPtr;
+					})) != this->parts.end()) {
+				this->remove(it);
+				++it;
+			}
 		}
 
-		P& get(const std::string& id) const {
-			return this->parts.at(id);
+		void remove(const _partMapType::const_iterator& it) {
+			if (it != this->parts.cend()) {
+				auto id = it->first;
+				P* part = it->second.get();
+
+				this->parts.erase(it);
+				this->onRemove(id, part);
+			}
+		}
+
+		P* operator[](const std::string& id) const {
+			auto it = this->parts.find(id);
+			return (it == this->parts.end()) ? nullptr : it->second.get();
 		}
 
 		_partMapType::iterator begin() {
@@ -105,8 +132,16 @@ public:
 		}
 
 	protected:
+		virtual void onSet(const string& id, P* partPtr) {
+			if (partPtr) {
+				partPtr->parent = this->entity;
+			}
+		};
+
+		virtual void onRemove(const string& id, P* partPtr) { };
+
 		_partMapType parts;
-		Entity* entity;
+		const Entity* entity;
 	};
 
 	typedef PartMap<Entity> EntityMap;
@@ -117,6 +152,7 @@ public:
 	EventBus events;
 private:
 	Entity* parent;
+	Scene* scene;
 };
 
 } /* namespace WheelsOfWar */

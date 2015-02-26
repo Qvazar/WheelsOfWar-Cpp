@@ -2,7 +2,8 @@
 
 #include <algorithm>
 #include <forward_list>
-#include <map>
+#include <iterator>
+#include <unordered_map>
 #include <memory>
 #include <typeinfo>
 
@@ -16,10 +17,7 @@ namespace WheelsOfWarEngine {
 			*this = other;
 		}
 
-		EventBus(EventBus&& other) noexcept 
-		: typedBuses(std::move(other.typedBuses)) {
-
-		}
+		EventBus(EventBus&& other) = default;
 
 		~EventBus() = default;
 
@@ -33,27 +31,24 @@ namespace WheelsOfWarEngine {
 			return *this;
 		}
 
-		EventBus& operator=(EventBus&& other) noexcept {
-			this->typedBuses = std::move(other.typedBuses);
-			return *this;
-		}
+		EventBus& operator=(EventBus&& other) = default;
 
 		template<typename E>
 		void send(const E& event) noexcept const {
-			auto eType = type_index(typeid(event));
+			auto eType = type_index(typeid(E));
 			auto it = this->typedBuses.find(eType);
 
 			if (it != this->typedBuses.end()) {
-				const TypedEventBus<E>* bus = static_cast<TypedEventBus<E>*>(it->second.get());
+				const auto* bus = static_cast<TypedEventBus<E>*>(it->second.get());
 				bus->send(event):
 			}
 		}
 
 		template<typename E, typename H>
 		void on(const H* handler) noexcept {
-			auto eType = type_index(typeid(event));
-
-			auto busPtr = this->typedBuses[eType];
+			auto& bl = this->typedBuses;
+			auto eType = type_index(typeid(E));
+			auto& busPtr = bl[eType];
 
 			if (!busPtr) {
 				busPtr.reset(new TypedEventBus<E>);
@@ -64,21 +59,33 @@ namespace WheelsOfWarEngine {
 
 		template<typename E, typename H>
 		void off(const H* handler) noexcept {
-			auto eType = type_index(typeid(event));
+			auto eType = type_index(typeid(E));
 			auto it = this->typedBuses.find(eType);
 
 			if (it == this->typedBuses.end()) {
 				return;
 			}
 
-			auto busPtr = it->second;
+			auto& busPtr = it->second;
 
 			static_cast<TypedEventBus<E>*>(busPtr.get())->off(handler);
 
 			if (busPtr->handlers.empty()) {
 				this->typedBuses.erase(it);
 			}
-		}			
+		}
+
+		template<typename E>
+		unsigned int count() noexcept const {
+			auto eType = type_index(typeid(E));
+			auto it = this->typedBuses.find(eType);
+
+			if (it == this->typedBuses.end()) {
+				return 0;
+			} else {
+				return it->second->count();
+			}
+		}
 
 	private:
 		class TypedEventBusBase {
@@ -87,7 +94,6 @@ namespace WheelsOfWarEngine {
 
 		template<typename E>
 		class TypedEventBus : public TypedEventBusBase {
-			friend class EventBus;
 		public:
 			TypedEventBus() = default;
 
@@ -130,7 +136,7 @@ namespace WheelsOfWarEngine {
 
 			template<typename H>
 			void on(const H* handlerPtr) noexcept {
-				this->handlers.emplace_front(new Handler<H> { handlerPtr });
+				this->handlers.emplace_front(new Handler<H>(handlerPtr));
 			}
 
 			template<typename H>
@@ -139,6 +145,10 @@ namespace WheelsOfWarEngine {
 					Handler<H>* handlerStructP = dynamic_cast<Handler<H>*>(hPtr.get());
 					return handlerStructP != nullptr && handlerStructP->handlerPtr == handlerPtr;
 				});
+			}
+
+			unsigned int count() noexcept const {
+				return std::distance(this->handlers.begin(), this->handlers.end());
 			}
 
 		private:
@@ -163,6 +173,6 @@ namespace WheelsOfWarEngine {
 			std::forward_list<unique_ptr<HandlerBase>> handlers;
 		};
 
-		std::map<type_index, std::unique_ptr<TypedEventBusBase>> typedBuses;
+		std::unordered_map<type_index, std::unique_ptr<TypedEventBusBase>> typedBuses;
 	};
 }

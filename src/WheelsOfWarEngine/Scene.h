@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Entity.h"
 #include "Heartbeat.h"
 
@@ -23,9 +24,20 @@ public:
 	bool isActive();
 
 public:
-	Entity::EntityMap entities;
+
+	class SceneEntityMap : public Entity::EntityMap {
+		virtual void onSet(const string& id, P* partPtr) override {
+			if (partPtr) {
+				partPtr->scene = this;
+			}
+		}
+	};
+
+	SceneEntityMap entities;
 private:
 	bool active;
 };
+
+typedef std::shared_ptr<Scene> ScenePtr;
 
 }

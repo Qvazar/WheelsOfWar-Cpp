@@ -64,6 +64,6 @@ private:
 };
 
 template<typename T, class CollectionT>
-struct TypeCheckingIterator : std::iterator<std::forward_iterator_tag, T> {
+struct TypeCheckingIterator<void> : std::iterator<std::forward_iterator_tag, T> {
 };
 }

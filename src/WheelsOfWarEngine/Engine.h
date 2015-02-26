@@ -1,5 +1,7 @@
 #pragma once
 
+#include <forward_list>
+#include <memory>
 #include "EventBus.h"
 #include "Heartbeat.h"
 #include "Scene.h"
@@ -13,24 +15,23 @@ public:
 	Engine(Engine&&) = default;
 	virtual ~Engine() {} = default;
 
-	virtual void run();
-	virtual void stop();
+	virtual void initialize() = 0;
+	virtual void shutdown() = 0;
 
 	virtual void update(const Heartbeat&) = 0;
 	virtual void tick(const Heartbeat&) = 0;
 
-	// Clears the scene-stack
-	virtual void setScene(Scene*);
+	void setScene(const ScenePtr& scene) final {
+		auto oldScene = this->scene;
+		this->scene = scene;
+		this->onSetScene(oldScene, scene);
+	}
 
-	virtual void pushScene(Scene*);
-
-	virtual Scene* popScene();
+protected:
+	virtual void onSetScene(const ScenePtr& oldScene, const ScenePtr& newScene) {};
 
 private:
-	EventBus events;
-	bool isRunning = false;
-
-
+	ScenePtr scene;
 };
 
 } /* namespace WheelsOfWar */
