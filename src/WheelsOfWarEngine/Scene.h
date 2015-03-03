@@ -20,13 +20,14 @@ public:
 	void applyUpdate() noexcept;
 	void tick(const Heartbeat&) noexcept;
 
-	void setActive(bool active);
-	bool isActive();
+	void setActive(bool active) noexcept;
+	bool isActive() noexcept;
 
 public:
 
 	class SceneEntityMap : public Entity::EntityMap {
-		virtual void onSet(const string& id, P* partPtr) override {
+		virtual void onSet(const string& id, Entity* partPtr) override {
+			Entity::EntityMap::onSet(id, partPtr);
 			if (partPtr) {
 				partPtr->scene = this;
 			}

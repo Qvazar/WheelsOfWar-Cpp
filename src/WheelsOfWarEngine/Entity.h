@@ -63,6 +63,12 @@ public:
 
 		virtual ~PartMap() = default;
 
+		template<class C, class... Args>
+		void set(const std::string& id, Args&&... args) {
+			auto it = this->parts.insert_or_assign(id, std::make_unique<C>(std::forward<Args>(args)...)).first;
+			this->onSet(id, (*it).get());
+		}
+
 		void set(const std::string& id, P* partPtr) noexcept {
 			this->parts[id].reset(partPtr);
 			this->onSet(id, partPtr);
