@@ -1,10 +1,10 @@
 #pragma once
 
-#include <forward_list>
-#include <memory>
+#include <condition_variable>
+#include <mutex>
 #include "EventBus.h"
+#include "Game.h"
 #include "Heartbeat.h"
-#include "Scene.h"
 
 namespace WheelsOfWar {
 
@@ -15,23 +15,25 @@ public:
 	Engine(Engine&&) = default;
 	virtual ~Engine() {} = default;
 
-	virtual void initialize() = 0;
-	virtual void shutdown() = 0;
+	void initialize(Game&) final;
+	void shutdown() final;
 
-	virtual void update(const Heartbeat&) = 0;
-	virtual void tick(const Heartbeat&) = 0;
-
-	void setScene(const ScenePtr& scene) final {
-		auto oldScene = this->scene;
-		this->scene = scene;
-		this->onSetScene(oldScene, scene);
-	}
+	void update(const Heartbeat&) final;
+	void tick(const Heartbeat&) final;
 
 protected:
-	virtual void onSetScene(const ScenePtr& oldScene, const ScenePtr& newScene) {};
+	virtual void onInitialize() = 0;
+	virtual void onShutdown() = 0;
+	virtual void onUpdate(const Heartbeat&) = 0;
+	virtual void onTick(const Heartbeat&) = 0;
+
+	Game& game() final const;
+	EventBus& events() final const;
 
 private:
-	ScenePtr scene;
+	Game* gamePtr;
+	mutex mutex;
+	condition_variable cv;
 };
 
 } /* namespace WheelsOfWar */

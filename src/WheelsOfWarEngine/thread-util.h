@@ -58,20 +58,20 @@ private:
 };
 */
 
-template<class Lock, class M, class F, class R = void, class... Args>
-R lock(const M& mutex, F fn, Args&&... args) {
-	Lock lk(mutex);
-	return fn(forward(args));
+template<class Lock, class M, class F, class R = void>
+R lock(const M& mutex, F fn) {
+	Lock<M> lk(mutex);
+	return fn();
 }
 
-template<class M, class F, class R = void, class... Args>
-R lockUnique(const M& mutex, F fn, Args&&... args) {
-	return lock<unique_lock>(mutex, fn, forward(args));
+template<class M, class F, class R = void>
+R lock(const M& mutex, F fn) {
+	return lock<lock_guard, M, F, R>(mutex, fn);
 }
 
-template<class M, class F, class R = void, class... Args>
-R lockShared(const M& mutex, F fn, Args&&... args) {
-	return lock<shared_lock>(mutex, fn, forward(args));
+template<class M, class F, class R = void>
+R lockShared(const M& mutex, F fn) {
+	return lock<shared_lock, M, F, R>(mutex, fn);
 }
 
 }

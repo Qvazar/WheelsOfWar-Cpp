@@ -1,10 +1,12 @@
 #pragma once
 
+#include <chrono>
+
 namespace WheelsOfWarEngine {
 
 struct Heartbeat {
 	unsigned long tick;
-	float deltaTime;
+	std::chrono::seconds deltaTime;
 };
 
 } /* namespace WheelsOfWar */
