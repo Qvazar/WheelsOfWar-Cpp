@@ -37,18 +37,19 @@ void Game::run() {
 		hb.tick += 1;
 		hb.deltaTime = now - lastTick;
 
+		if (now - lastUpdateTime >= updateDelta) {
+			hb.doUpdate = true;
+
+			lastUpdateTime = now;
+		} else {
+			hb.doUpdate = false;
+		}
+
 		for (auto& enginePtr : this->engines) {
 			enginePtr->tick(hb);
 		}
 
-		if (now - lastUpdateTime >= updateDelta) {
-			for (auto& enginePtr : this->engines) {
-				enginePtr->update(hb);
-			}
-
-			lastUpdateTime = now;
-		}
-
+		
 		lastTick = move(now);
 	}
 

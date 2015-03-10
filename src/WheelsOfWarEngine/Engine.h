@@ -1,12 +1,16 @@
 #pragma once
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <queue>
 #include "EventBus.h"
 #include "Game.h"
 #include "Heartbeat.h"
 
 namespace WheelsOfWar {
+
+using namespace std;
 
 class Engine {
 public:
@@ -18,7 +22,6 @@ public:
 	void initialize(Game&) final;
 	void shutdown() final;
 
-	void update(const Heartbeat&) final;
 	void tick(const Heartbeat&) final;
 
 protected:
@@ -31,9 +34,14 @@ protected:
 	EventBus& events() final const;
 
 private:
+	void run();
+
 	Game* gamePtr;
-	mutex mutex;
-	condition_variable cv;
+	atomic<bool> running = false;
+	queue<Heartbeat> heartbeats;
+	mutex heartbeatsMutex;
+	condition_variable heartbeatsCv;
+	thread runThread;
 };
 
 } /* namespace WheelsOfWar */
