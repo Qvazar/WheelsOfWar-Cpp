@@ -1,8 +1,5 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
 #include <queue>
 #include "EventBus.h"
 #include "Game.h"
@@ -27,21 +24,13 @@ public:
 protected:
 	virtual void onInitialize() = 0;
 	virtual void onShutdown() = 0;
-	virtual void onUpdate(const Heartbeat&) = 0;
 	virtual void onTick(const Heartbeat&) = 0;
 
 	Game& game() final const;
 	EventBus& events() final const;
 
 private:
-	void run();
-
 	Game* gamePtr;
-	atomic<bool> running = false;
-	queue<Heartbeat> heartbeats;
-	mutex heartbeatsMutex;
-	condition_variable heartbeatsCv;
-	thread runThread;
 };
 
 } /* namespace WheelsOfWar */

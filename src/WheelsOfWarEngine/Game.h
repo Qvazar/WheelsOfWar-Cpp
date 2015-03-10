@@ -2,7 +2,7 @@
 
 #include <initializer_list>
 #include <memory>
-#include <array>
+#include <vector>
 #include "Engine.h"
 #include "EventBus.h"
 
@@ -26,7 +26,7 @@ public:
 	EventBus& events() const { return events; }
 
 private:
-	array<unique_ptr<Engine>> engines;
+	vector<unique_ptr<Engine>> engines;
 	bool isRunning;
 	char updateHz;
 	EventBus events;
