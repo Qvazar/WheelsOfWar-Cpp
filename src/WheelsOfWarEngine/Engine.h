@@ -6,20 +6,20 @@
 #include "Game.h"
 #include "Heartbeat.h"
 
-namespace WheelsOfWar {
+namespace WheelsOfWarEngine {
 
 class Engine {
 public:
 	Engine() = default;
 	Engine(const Engine&) = delete;
 	Engine(Engine&&) = default;
-	virtual ~Engine() {} = default;
+	virtual ~Engine() = default;
 
-	void initialize(Game&) final;
-	void shutdown() final;
+	void initialize(Game&);
+	void shutdown();
 
-	void update(const Heartbeat&) final;
-	void tick(const Heartbeat&) final;
+	void update(const Heartbeat&);
+	void tick(const Heartbeat&);
 
 protected:
 	virtual void onInitialize() = 0;
@@ -27,13 +27,13 @@ protected:
 	virtual void onUpdate(const Heartbeat&) = 0;
 	virtual void onTick(const Heartbeat&) = 0;
 
-	Game& game() final const;
-	EventBus& events() final const;
+	Game& game() const;
+	EventBus& events() const;
 
 private:
-	Game* gamePtr;
-	mutex mutex;
-	condition_variable cv;
+	Game* gamePtr = nullptr;
+	std::mutex mutex;
+	std::condition_variable cv;
 };
 
 } /* namespace WheelsOfWar */

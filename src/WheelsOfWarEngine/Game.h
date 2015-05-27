@@ -2,13 +2,15 @@
 
 #include <initializer_list>
 #include <memory>
-#include <array>
+#include <vector>
 #include "Engine.h"
 #include "EventBus.h"
 
-using std;
-
 namespace WheelsOfWarEngine {
+
+using namespace std;
+
+class Engine;
 
 class Game final {
 public:
@@ -23,13 +25,13 @@ public:
 	void run();
 	void halt();
 
-	EventBus& events() const { return events; }
+	EventBus& events() { return eventBus; }
 
 private:
-	array<unique_ptr<Engine>> engines;
+	vector<unique_ptr<Engine>> engines;
 	bool isRunning;
 	char updateHz;
-	EventBus events;
+	EventBus eventBus;
 };
 
 }

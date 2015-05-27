@@ -4,6 +4,8 @@
 
 namespace WheelsOfWarEngine {
 
+class Entity;
+
 class Component {
 	friend class Entity;
 public:
@@ -15,7 +17,10 @@ public:
 	virtual void tick(const Heartbeat&) = 0;
 
 protected:
-	Entity* parent;
+	Entity& parent() const { return *parentPtr; }
+
+private:
+	Entity* parentPtr;
 };
 
 } /* namespace WheelsOfWar */

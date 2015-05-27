@@ -4,7 +4,7 @@
 #include "Entity.h"
 #include "Heartbeat.h"
 
-namespace WheelsOfWar {
+namespace WheelsOfWarEngine {
 
 class Scene {
 public:
@@ -21,7 +21,7 @@ public:
 	void tick(const Heartbeat&) noexcept;
 
 	void setActive(bool active) noexcept;
-	bool isActive() noexcept;
+	bool isActive() const;
 
 public:
 
@@ -39,6 +39,6 @@ private:
 	bool active;
 };
 
-typedef std::shared_ptr<Scene> ScenePtr;
+using ScenePtr = std::shared_ptr<Scene>;
 
 }

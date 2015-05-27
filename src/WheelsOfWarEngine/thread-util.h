@@ -4,7 +4,7 @@
 #include <shared_mutex>
 #include <utility>
 
-using std;
+using namespace std;
 
 namespace WheelsOfWarEngine {
 
@@ -60,18 +60,18 @@ private:
 
 template<class Lock, class M, class F, class R = void>
 R lock(const M& mutex, F fn) {
-	Lock<M> lk(mutex);
+	Lock lk{mutex};
 	return fn();
 }
 
 template<class M, class F, class R = void>
 R lock(const M& mutex, F fn) {
-	return lock<lock_guard, M, F, R>(mutex, fn);
+	return lock<lock_guard<M>, M, F, R>(mutex, fn);
 }
 
 template<class M, class F, class R = void>
 R lockShared(const M& mutex, F fn) {
-	return lock<shared_lock, M, F, R>(mutex, fn);
+	return lock<shared_lock<M>, M, F, R>(mutex, fn);
 }
 
 }

@@ -24,7 +24,7 @@ void Scene::setActive(bool active) {
 	this->active = active;
 }
 
-void Scene::isActive() {
+bool Scene::isActive() const {
 	return this->active;
 }
 
