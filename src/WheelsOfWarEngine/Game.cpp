@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <future>
 #include <utility>
 #include "Game.h"
 #include "events/GameHaltEvent.h"
@@ -30,6 +31,7 @@ void Game::run() {
 	auto updateDelta = chrono::seconds(1f / this->updateHz);
 	Clock::time_point lastUpdateTime;
 	Clock::time_point now;
+	vector<future> futures;
 
 	while (this->isRunning) {
 		now = Clock::now();
@@ -37,18 +39,15 @@ void Game::run() {
 		hb.tick += 1;
 		hb.deltaTime = now - lastTick;
 
-		for (auto& enginePtr : this->engines) {
-			enginePtr->tick(hb);
-		}
+		futures.resize(engines.size());
+		transform(engines.begin(), engines.end(), futures.begin(), [&hb](const Engine& engine) {
+			return async(launch::async, [&]() { engine.tick(hb) });
+		});
 
-		if (now - lastUpdateTime >= updateDelta) {
-			for (auto& enginePtr : this->engines) {
-				enginePtr->update(hb);
-			}
-
-			lastUpdateTime = now;
-		}
-
+		for_each(futures.begin(), futures.end(), [](const auto& f) {
+			f.get();
+		});
+		
 		lastTick = move(now);
 	}
 

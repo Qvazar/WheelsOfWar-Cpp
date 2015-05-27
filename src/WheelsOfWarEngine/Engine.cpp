@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "thread-util.h"
 
 namespace WheelsOfWarEngine {
 
@@ -17,7 +18,7 @@ void Engine::update(const Heartbeat& hb) {
 }
 
 void Engine::tick(const Heartbeat& hb) {
-
+	this->onTick(hb);
 }
 
 Game& Engine::game() const {

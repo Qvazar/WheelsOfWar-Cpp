@@ -1,12 +1,13 @@
 #pragma once
 
-#include <condition_variable>
-#include <mutex>
+#include <queue>
 #include "EventBus.h"
 #include "Game.h"
 #include "Heartbeat.h"
 
 namespace WheelsOfWarEngine {
+
+using namespace std;
 
 class Engine {
 public:
@@ -24,7 +25,6 @@ public:
 protected:
 	virtual void onInitialize() = 0;
 	virtual void onShutdown() = 0;
-	virtual void onUpdate(const Heartbeat&) = 0;
 	virtual void onTick(const Heartbeat&) = 0;
 
 	Game& game() const;
