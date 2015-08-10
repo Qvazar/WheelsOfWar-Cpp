@@ -13,7 +13,7 @@ typedef chrono::steady_clock Clock;
 namespace WheelsOfWarEngine {
 
 Game::Game(const initializer_list<unique_ptr<Engine>>& engines)
-: engines{engines}, isRunning{false}, updateHz{10} {
+: engines{engines}, isRunning{false}, updateHz{10}, scenes{this->events} {
 
 }
 
@@ -44,6 +44,7 @@ void Game::run() {
 			return async(launch::async, [&]() { engine.tick(hb) });
 		});
 
+		// Wait for all threads to complete their work
 		for_each(futures.begin(), futures.end(), [](const auto& f) {
 			f.get();
 		});

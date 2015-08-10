@@ -5,6 +5,7 @@
 #include <vector>
 #include "Engine.h"
 #include "EventBus.h"
+#include "SceneManager.h"
 
 using std;
 
@@ -30,6 +31,7 @@ private:
 	bool isRunning;
 	char updateHz;
 	EventBus events;
+	SceneManager scenes;
 };
 
 }
