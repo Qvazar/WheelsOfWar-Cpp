@@ -20,10 +20,10 @@ Game::Game(const initializer_list<unique_ptr<Engine>>& engines)
 void Game::run() {
 	this->isRunning = true;
 
-	this->events.on<GameHaltEvent>([this](const GameHaltEvent&){ this->halt(); });
+	this->eventBus.on<GameHaltEvent>([this](const GameHaltEvent&){ this->halt(); });
 
 	for (auto& enginePtr : this->engines) {
-		enginePtr->initialize(this->events);
+		enginePtr->initialize(*this);
 	}
 
 	auto hb = Heartbeat{0, 0f};
@@ -52,7 +52,7 @@ void Game::run() {
 		lastTick = move(now);
 	}
 
-	std::for_each(this->engines.rbegin(), this->engines.rend(), [](enginePtr&){
+	std::for_each(this->engines.rbegin(), this->engines.rend(), [](unique_ptr<Engine>& enginePtr){
 		enginePtr->shutdown();
 	});
 }

@@ -9,6 +9,7 @@
 #include "Component.h"
 #include "EventBus.h"
 #include "Heartbeat.h"
+#include "Scene.h"
 
 namespace WheelsOfWarEngine {
 
@@ -113,27 +114,27 @@ public:
 			return (it == this->parts.end()) ? nullptr : it->second.get();
 		}
 
-		_partMapType::iterator begin() {
+		typename _partMapType::iterator begin() {
 			return this->parts.begin();
 		}
 
-		_partMapType::const_iterator begin() const {
+		typename_partMapType::const_iterator begin() const {
 			return this->parts.begin();
 		}
 
-		_partMapType::const_iterator cbegin() const {
+		typename_partMapType::const_iterator cbegin() const {
 			return this->parts.cbegin();
 		}
 
-		_partMapType::iterator end() {
+		typename_partMapType::iterator end() {
 			return this->parts.end();
 		}
 
-		_partMapType::const_iterator end() const {
+		typename_partMapType::const_iterator end() const {
 			return this->parts.end();
 		}
 
-		_partMapType::const_iterator cend() const {
+		typename_partMapType::const_iterator cend() const {
 			return this->parts.cend();
 		}
 

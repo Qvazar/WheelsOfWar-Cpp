@@ -7,9 +7,11 @@
 #include "EventBus.h"
 #include "SceneManager.h"
 
-using std;
-
 namespace WheelsOfWarEngine {
+
+using namespace std;
+
+class Engine;
 
 class Game final {
 public:
@@ -24,7 +26,7 @@ public:
 	void run();
 	void halt();
 
-	EventBus& events() const { return events; }
+	EventBus& events() { return eventBus; }
 
 private:
 	vector<unique_ptr<Engine>> engines;
