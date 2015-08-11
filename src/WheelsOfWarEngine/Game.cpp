@@ -20,7 +20,7 @@ Game::Game(const initializer_list<unique_ptr<Engine>>& engines)
 void Game::run() {
 	this->isRunning = true;
 
-	this->eventBus.on<GameHaltEvent>([this](const GameHaltEvent&){ this->halt(); });
+	this->events.on<GameHaltEvent>([this](const GameHaltEvent&){ this->halt(); });
 
 	for (auto& enginePtr : this->engines) {
 		enginePtr->initialize(*this);
