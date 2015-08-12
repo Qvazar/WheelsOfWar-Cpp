@@ -1,8 +1,11 @@
 #pragma once;
 
+#include "../Component.h"
+
 namespace WheelsOfWarEngine{
 	
-class SpriteComponent{
+class SpriteComponent : public Component {
 
 };
+
 }
